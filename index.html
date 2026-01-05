@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Green Circle App - Prototype</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #e0edff 0, #f3f4f6 40%, #e5e7eb 100%);
+      color: #111827;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1120px;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.18),
+        0 2px 8px rgba(15, 23, 42, 0.08);
+      padding: 18px 20px 22px;
+      display: none;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 4px 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .app-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title {
+      font-size: 22px;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .app-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .role-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .view-nav {
+      margin-top: 10px;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 6px;
+    }
+
+    .nav-tab {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #f9fafb;
+      color: #4b5563;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-tab-active {
+      background: #e0edff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr);
+      gap: 20px;
+      padding-top: 10px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #f9fafb 0, #ffffff 40%, #f9fafb 100%);
+      border-radius: 14px;
+      padding: 16px 18px 18px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .card-subtext {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 9px;
+      border: 1px solid #d1d5db;
+      font-size: 13px;
+      outline: none;
+      background: #f9fafb;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
+      background: #ffffff;
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .field-group {
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.12s ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: radial-gradient(circle at top left, #60a5fa, #2563eb);
+      color: #ffffff;
+      box-shadow:
+        0 10px 20px rgba(37, 99, 235, 0.25),
+        0 2px 4px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: radial-gradient(circle at top left, #3b82f6, #1d4ed8);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #111827;
+      box-shadow: 0 1px 4px rgba(148, 163, 184, 0.35);
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .btn-sm {
+      padding: 5px 11px;
+      font-size: 12px;
+      box-shadow: none;
+    }
+
+    .btn-ghost {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .note-text {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 8px;
+    }
+
+    .circle-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .circle-container {
+      background: radial-gradient(circle at top, #eef2ff 0, #ffffff 30%, #f9fafb 100%);
+      border-radius: 16px;
+      padding: 14px 14px 16px;
+      border: 1px solid rgba(199, 210, 254, 0.9);
+      box-shadow: 0 7px 18px rgba(129, 140, 248, 0.25);
+    }
+
+    .circle-title {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin-bottom: 6px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid #e5e7eb;
+    }
+
+    .legend-color {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .hint-text {
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .export-hint {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 2px;
+      text-align: center;
+    }
+
+    /* Dashboard */
+
+    #viewDashboard {
+      padding-top: 10px;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .dashboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .dashboard-item {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      background: #f9fafb;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .dashboard-item:hover {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+    }
+
+    .dashboard-item-hovered {
+      background: #e0edff !important;
+      border-color: #bfdbfe !important;
+    }
+
+    .dashboard-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dashboard-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .dashboard-meta-line {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dashboard-notes {
+      font-size: 11px;
+      color: #4b5563;
+      max-height: 2.4em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dashboard-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .dashboard-preview-card {
+      background: #f9fafb;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px 14px;
+    }
+
+    .dashboard-preview-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    .dashboard-preview-subtitle {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .dashboard-preview-circle-title {
+      font-size: 12px;
+      text-align: center;
+      font-weight: 500;
+      margin-bottom: 4px;
+      min-height: 16px;
+    }
+
+    .dashboard-preview-empty {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+
+    #dashboardPreviewContainer {
+      margin-top: 4px;
+    }
+
+    #dashboardPreviewSvg {
+      display: block;
+    }
+
+    /* Login overlay */
+
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #e0edff 0, #f3f4f6 40%, #e5e7eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+
+    .login-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 22px 22px 20px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.12),
+        0 0 0 1px rgba(148, 163, 184, 0.45);
+      color: #111827;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+    }
+
+    .login-title {
+      font-size: 21px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .login-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      border: 1px solid #93c5fd;
+      color: #1d4ed8;
+    }
+
+    .login-subtitle {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    .role-options {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .role-chip {
+      flex: 1;
+      text-align: center;
+      padding: 7px 0;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      color: #374151;
+      background: #f9fafb;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .role-chip.active {
+      background: radial-gradient(circle at top, #60a5fa, #2563eb);
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+
+    .login-footer {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .error-text {
+      color: #dc2626;
+      font-size: 11px;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: radial-gradient(circle at top left, #60a5fa, #2563eb);
+      color: #eff6ff;
+      box-shadow:
+        0 12px 30px rgba(37, 99, 235, 0.4),
+        0 0 0 1px rgba(191, 219, 254, 0.5);
+      margin-top: 10px;
+      padding-top: 9px;
+      padding-bottom: 9px;
+    }
+
+    .btn-login:hover {
+      background: radial-gradient(circle at top left, #3b82f6, #1d4ed8);
+    }
+
+    /* Toast */
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #16a34a;
+      color: #f9fafb;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      box-shadow: 0 10px 25px rgba(22, 163, 74, 0.35);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1000;
+    }
+
+    .toast-show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 14px;
+      }
+      .app-shell {
+        padding: 14px 14px 16px;
+      }
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .dashboard-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .role-pill {
+        align-self: flex-start;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+  <!-- Login -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="login-title">
+        Green Circle App
+       
+      </div>
+      <div class="login-subtitle">
+        Internal tool for Newslab-style assessments
+      </div>
+
+      <div class="role-options">
+        <div class="role-chip active" data-role="admin" id="roleAdmin">Admin</div>
+        <div class="role-chip" data-role="user" id="roleUser">Faculty or student</div>
+      </div>
+
+      <div class="field-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" />
+      </div>
+
+      <button class="btn-login" id="loginButton">
+        Enter workspace
+      </button>
+
+      <div class="error-text" id="loginError"></div>
+
+      
+    </div>
+  </div>
+
+  <!-- App -->
+  <div class="app-shell" id="appShell">
+    <header class="app-header">
+      <div class="app-title-block">
+        <div class="app-title">
+          Green seal circle 
+         
+        </div>
+        <div class="app-subtitle">
+          Set the color for each criterion and export the circle for use in slides or future integration into Newslab.
+        </div>
+      </div>
+      <div class="role-pill" id="currentRolePill">
+        <span class="role-dot"></span>
+        Signed in
+      </div>
+    </header>
+
+    <div class="view-nav">
+      <button class="nav-tab nav-tab-active" id="navCreate">Create circle</button>
+      <button class="nav-tab" id="navDashboard">Dashboard</button>
+    </div>
+
+    <!-- CREATE VIEW -->
+    <div id="viewCreate">
+      <main class="layout">
+        <section class="card">
+          <h2>Account details</h2>
+          <p class="card-subtext">
+            These fields help label the exported image and can later be tied to stored assessments.
+          </p>
+
+          <div class="field-group">
+            <label for="accountName">Account or influencer name</label>
+            <input type="text" id="accountName" placeholder="Example: Podcast title, creator, or channel name" />
+          </div>
+
+          <div class="field-group">
+            <label for="platform">Platform (optional)</label>
+            <input type="text" id="platform" placeholder="Example: TikTok, Instagram, YouTube, Substack" />
+          </div>
+
+          <div class="field-group">
+            <label for="handle">Handle or link (optional)</label>
+            <input type="text" id="handle" placeholder="@handle or profile URL" />
+          </div>
+
+          <div class="field-group">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" placeholder="Short context for how this circle was scored"></textarea>
+          </div>
+
+          <p class="note-text" id="circleStatusText">
+            New circle (not saved yet).
+          </p>
+        </section>
+
+        <section class="card">
+          <div class="circle-wrapper">
+            <div class="circle-container" id="circleCaptureArea">
+              <div class="circle-title" id="circleTitle">Untitled account</div>
+
+              <!-- Main donut -->
+              <svg id="greenCircleSvg" width="520" height="520"></svg>
+
+              <div class="legend">
+                <div class="legend-item">
+                  <span class="legend-color" style="background:#4ade80;"></span>
+                  High
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background:#fde047;"></span>
+                  Medium
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background:#fb7185;"></span>
+                  Low
+                </div>
+              </div>
+            </div>
+
+            <div class="button-row" style="justify-content:center; margin-top:10px;">
+              <button class="btn-primary" id="saveCircleButton">
+                Save circle
+              </button>
+              <button class="btn-secondary" id="createNewCircleButton">
+                Create new circle
+              </button>
+              <button class="btn-secondary" id="exportPngButton">
+                Export circle as PNG
+              </button>
+            </div>
+            <p class="hint-text">
+              Click any segment to cycle colors. Start with green then tap to move to yellow and red.
+            </p>
+            <p class="export-hint">
+              Export uses an increased render scale so the PNG stays sharp for slides and print.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="viewDashboard" style="display:none;">
+      <section class="card">
+        <h2>Saved circles</h2>
+        <p class="card-subtext">
+          Open a saved circle to keep editing, or start a new one.
+        </p>
+
+        <div class="dashboard-layout">
+          <div>
+            <div id="dashboardList" class="dashboard-list"></div>
+          </div>
+
+          <div class="dashboard-preview-card">
+            <div class="dashboard-preview-title">Preview</div>
+            <div class="dashboard-preview-subtitle">
+              Hover over a saved circle to see its donut.
+            </div>
+            <div id="dashboardPreviewContainer">
+              <div class="circle-container">
+                <div class="dashboard-preview-circle-title" id="dashboardPreviewTitle"></div>
+                <svg id="dashboardPreviewSvg" width="260" height="260"></svg>
+              </div>
+              <div id="dashboardPreviewEmpty" class="dashboard-preview-empty">
+                No circle selected.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="saveToast" class="toast">Circle saved</div>
+
+  <script>
+    /* ---------- Login logic ---------- */
+    const loginOverlay = document.getElementById("loginOverlay");
+    const appShell = document.getElementById("appShell");
+    const roleAdminChip = document.getElementById("roleAdmin");
+    const roleUserChip = document.getElementById("roleUser");
+    const loginPasswordInput = document.getElementById("loginPassword");
+    const loginButton = document.getElementById("loginButton");
+    const loginError = document.getElementById("loginError");
+    const currentRolePill = document.getElementById("currentRolePill");
+
+    let selectedRole = "admin";
+    let currentRoleLabel = "Admin";
+
+    function updateRolePill() {
+      if (!currentRolePill) return;
+      if (currentRoleLabel === "Admin") {
+        currentRolePill.innerHTML = '<span class="role-dot"></span> Signed in as admin';
+      } else {
+        currentRolePill.innerHTML =
+          '<span class="role-dot" style="background:#22c55e;"></span> Signed in as faculty or student';
+      }
+    }
+
+    roleAdminChip.addEventListener("click", () => {
+      selectedRole = "admin";
+      currentRoleLabel = "Admin";
+      roleAdminChip.classList.add("active");
+      roleUserChip.classList.remove("active");
+    });
+
+    roleUserChip.addEventListener("click", () => {
+      selectedRole = "user";
+      currentRoleLabel = "User";
+      roleUserChip.classList.add("active");
+      roleAdminChip.classList.remove("active");
+    });
+
+    loginButton.addEventListener("click", () => {
+      const value = loginPasswordInput.value.trim();
+      const adminPassword = "admin123";
+      const userPassword = "user123";
+      const correctPassword = selectedRole === "admin" ? adminPassword : userPassword;
+
+      if (value === correctPassword) {
+        loginOverlay.style.display = "none";
+        appShell.style.display = "block";
+        loginError.textContent = "";
+        updateRolePill();
+        loadAssessmentsFromStorage();
+        renderDashboard();
+        createDonutCircle(mainCircleSvg);
+        updateCurrentCircleStatus();
+      } else {
+        loginError.textContent = "Incorrect password for the selected role.";
+      }
+    });
+
+    loginPasswordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        loginButton.click();
+      }
+    });
+
+    /* ---------- Nav between views ---------- */
+    const navCreateBtn = document.getElementById("navCreate");
+    const navDashboardBtn = document.getElementById("navDashboard");
+    const viewCreate = document.getElementById("viewCreate");
+    const viewDashboard = document.getElementById("viewDashboard");
+
+    function setView(view) {
+      if (view === "create") {
+        viewCreate.style.display = "block";
+        viewDashboard.style.display = "none";
+        navCreateBtn.classList.add("nav-tab-active");
+        navDashboardBtn.classList.remove("nav-tab-active");
+      } else {
+        viewCreate.style.display = "none";
+        viewDashboard.style.display = "block";
+        navDashboardBtn.classList.add("nav-tab-active");
+        navCreateBtn.classList.remove("nav-tab-active");
+        renderDashboard();
+      }
+    }
+
+    navCreateBtn.addEventListener("click", () => setView("create"));
+    navDashboardBtn.addEventListener("click", () => setView("dashboard"));
+
+    /* ---------- Circle + form elements ---------- */
+    const mainCircleSvg = document.getElementById("greenCircleSvg");
+    const previewSvg = document.getElementById("dashboardPreviewSvg");
+    const circleTitle = document.getElementById("circleTitle");
+    const circleStatusText = document.getElementById("circleStatusText");
+
+    const accountNameInput = document.getElementById("accountName");
+    const platformInput = document.getElementById("platform");
+    const handleInput = document.getElementById("handle");
+    const notesInput = document.getElementById("notes");
+
+    const exportButton = document.getElementById("exportPngButton");
+    const saveButton = document.getElementById("saveCircleButton");
+    const createNewCircleButton = document.getElementById("createNewCircleButton");
+    const captureArea = document.getElementById("circleCaptureArea");
+
+    const dashboardListEl = document.getElementById("dashboardList");
+    const dashboardPreviewEmpty = document.getElementById("dashboardPreviewEmpty");
+    const dashboardPreviewTitle = document.getElementById("dashboardPreviewTitle");
+
+    const saveToast = document.getElementById("saveToast");
+
+    const segmentNames = [
+      "Attribution",
+      "Context",
+      "Transparency",
+      "Neutrality",
+      "Originality"
+    ];
+
+    // Main circle uses gradients via these urls
+    const COLOR_GREEN = "url(#gradGreen)";
+    const COLOR_YELLOW = "url(#gradYellow)";
+    const COLOR_RED = "url(#gradRed)";
+    const colorCycle = [COLOR_GREEN, COLOR_YELLOW, COLOR_RED];
+
+    // Preview uses solid tones that match the gradient mid-tones
+    const previewColorCycle = ["#22c55e", "#facc15", "#fb7185"];
+
+    let segmentStates = [];
+    const STORAGE_KEY = "greenCircleAssessments_v1";
+    let assessments = [];
+    let currentCircleId = null;
+    let pendingDeleteId = null;
+
+    /* ---------- Toast ---------- */
+    function showToast(message) {
+      if (!saveToast) return;
+      saveToast.textContent = message;
+      saveToast.classList.add("toast-show");
+      setTimeout(() => {
+        saveToast.classList.remove("toast-show");
+      }, 1800);
+    }
+
+    /* ---------- Storage helpers ---------- */
+    function loadAssessmentsFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        assessments = [];
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        assessments = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        assessments = [];
+      }
+    }
+
+    function saveAssessmentsToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(assessments));
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+
+    function updateCurrentCircleStatus() {
+      if (!circleStatusText) return;
+      if (!currentCircleId) {
+        circleStatusText.textContent = "New circle (not saved yet).";
+        return;
+      }
+      const item = assessments.find(a => a.id === currentCircleId);
+      if (!item) {
+        circleStatusText.textContent = "Editing circle (unsaved changes).";
+        return;
+      }
+      const when = item.updatedAt || item.createdAt;
+      circleStatusText.textContent =
+        "Editing saved circle — last saved " + formatDate(when) + ".";
+    }
+
+    /* ---------- Gradients + donut drawing ---------- */
+    function createGradients(defs) {
+      const ns = "http://www.w3.org/2000/svg";
+
+      // GREEN
+      const greenGrad = document.createElementNS(ns, "linearGradient");
+      greenGrad.setAttribute("id", "gradGreen");
+      greenGrad.setAttribute("x1", "0%");
+      greenGrad.setAttribute("y1", "0%");
+      greenGrad.setAttribute("x2", "0%");
+      greenGrad.setAttribute("y2", "100%");
+      let stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "0%");
+      stop.setAttribute("stop-color", "#a7f3d0");
+      greenGrad.appendChild(stop);
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "40%");
+      stop.setAttribute("stop-color", "#4ade80");
+      greenGrad.appendChild(stop);
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "100%");
+      stop.setAttribute("stop-color", "#16a34a");
+      greenGrad.appendChild(stop);
+      defs.appendChild(greenGrad);
+
+      // YELLOW
+      const yellowGrad = document.createElementNS(ns, "linearGradient");
+      yellowGrad.setAttribute("id", "gradYellow");
+      yellowGrad.setAttribute("x1", "0%");
+      yellowGrad.setAttribute("y1", "0%");
+      yellowGrad.setAttribute("x2", "0%");
+      yellowGrad.setAttribute("y2", "100%");
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "0%");
+      stop.setAttribute("stop-color", "#fef3c7");
+      yellowGrad.appendChild(stop);
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "40%");
+      stop.setAttribute("stop-color", "#fde047");
+      yellowGrad.appendChild(stop);
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "100%");
+      stop.setAttribute("stop-color", "#eab308");
+      yellowGrad.appendChild(stop);
+      defs.appendChild(yellowGrad);
+
+      // RED
+      const redGrad = document.createElementNS(ns, "linearGradient");
+      redGrad.setAttribute("id", "gradRed");
+      redGrad.setAttribute("x1", "0%");
+      redGrad.setAttribute("y1", "0%");
+      redGrad.setAttribute("x2", "0%");
+      redGrad.setAttribute("y2", "100%");
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "0%");
+      stop.setAttribute("stop-color", "#fecaca");
+      redGrad.appendChild(stop);
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "40%");
+      stop.setAttribute("stop-color", "#fb7185");
+      redGrad.appendChild(stop);
+      stop = document.createElementNS(ns, "stop");
+      stop.setAttribute("offset", "100%");
+      stop.setAttribute("stop-color", "#e11d48");
+      redGrad.appendChild(stop);
+      defs.appendChild(redGrad);
+    }
+
+    function createDonutCircle(targetSvg, initialStates, options = {}) {
+      if (!targetSvg) return;
+
+      const size = options.size || 520;
+      const cx = size / 2;
+      const cy = size / 2;
+      const outerRadius = options.outerRadius || (size / 2) - 45;
+      const innerRadius = options.innerRadius || (size / 2) - 165;
+      const segments = segmentNames.length;
+      const angleStep = (Math.PI * 2) / segments;
+
+      while (targetSvg.firstChild) {
+        targetSvg.removeChild(targetSvg.firstChild);
+      }
+
+      targetSvg.setAttribute("width", size);
+      targetSvg.setAttribute("height", size);
+
+      const ns = "http://www.w3.org/2000/svg";
+      const defs = document.createElementNS(ns, "defs");
+      // Only main circle needs gradient defs
+      if (targetSvg === mainCircleSvg) {
+        createGradients(defs);
+      }
+      targetSvg.appendChild(defs);
+
+      let usedStates;
+      if (targetSvg === mainCircleSvg) {
+        if (Array.isArray(initialStates) && initialStates.length === segments) {
+          segmentStates = initialStates.slice();
+        } else {
+          segmentStates = new Array(segments).fill(0);
+        }
+        usedStates = segmentStates;
+      } else {
+        if (Array.isArray(initialStates) && initialStates.length === segments) {
+          usedStates = initialStates.slice();
+        } else {
+          usedStates = new Array(segments).fill(0);
+        }
+      }
+
+      const localColorCycle =
+        targetSvg === mainCircleSvg ? colorCycle : previewColorCycle;
+
+      for (let i = 0; i < segments; i++) {
+        const startAngle = i * angleStep;
+        const endAngle = (i + 1) * angleStep;
+        const midAngle = (startAngle + endAngle) / 2;
+
+        const outerStartX = cx + outerRadius * Math.cos(startAngle);
+        const outerStartY = cy + outerRadius * Math.sin(startAngle);
+        const outerEndX = cx + outerRadius * Math.cos(endAngle);
+        const outerEndY = cy + outerRadius * Math.sin(endAngle);
+
+        const innerEndX = cx + innerRadius * Math.cos(endAngle);
+        const innerEndY = cy + innerRadius * Math.sin(endAngle);
+        const innerStartX = cx + innerRadius * Math.cos(startAngle);
+        const innerStartY = cy + innerRadius * Math.sin(startAngle);
+
+        const largeArcFlag = 0;
+        const sweepFlagOuter = 1;
+        const sweepFlagInner = 0;
+
+        const pathData = [
+          "M", outerStartX, outerStartY,
+          "A", outerRadius, outerRadius, 0, largeArcFlag, sweepFlagOuter, outerEndX, outerEndY,
+          "L", innerEndX, innerEndY,
+          "A", innerRadius, innerRadius, 0, largeArcFlag, sweepFlagInner, innerStartX, innerStartY,
+          "Z"
+        ].join(" ");
+
+        const path = document.createElementNS(ns, "path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("fill", localColorCycle[usedStates[i]]);
+        path.setAttribute("stroke", "#ffffff");
+        path.setAttribute("stroke-width", "2");
+
+        if (targetSvg === mainCircleSvg) {
+          path.style.cursor = "pointer";
+          path.classList.add("segment-path");
+          path.addEventListener("click", () => {
+            cycleSegmentColor(i);
+          });
+        } else {
+          path.style.cursor = "default";
+        }
+
+        targetSvg.appendChild(path);
+
+        const labelRadius = (outerRadius + innerRadius) / 2;
+        const labelX = cx + labelRadius * Math.cos(midAngle);
+        const labelY = cy + labelRadius * Math.sin(midAngle);
+
+        const text = document.createElementNS(ns, "text");
+        text.setAttribute("x", labelX);
+        text.setAttribute("y", labelY);
+        text.setAttribute("fill", "#020617");
+        text.setAttribute("font-size", options.fontSize || 13);
+        text.setAttribute("font-weight", "500");
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "middle");
+        text.style.pointerEvents = "none";
+        text.textContent = segmentNames[i];
+        targetSvg.appendChild(text);
+      }
+    }
+
+    function cycleSegmentColor(index) {
+      segmentStates[index] = (segmentStates[index] + 1) % 3;
+      const paths = mainCircleSvg.querySelectorAll("path.segment-path");
+      paths.forEach((p, idx) => {
+        if (idx === index) {
+          p.setAttribute("fill", colorCycle[segmentStates[index]]);
+        }
+      });
+    }
+
+    /* ---------- Circle actions ---------- */
+    function startNewCircle() {
+      currentCircleId = null;
+      accountNameInput.value = "";
+      platformInput.value = "";
+      handleInput.value = "";
+      notesInput.value = "";
+      circleTitle.textContent = "Untitled account";
+      createDonutCircle(mainCircleSvg);
+      updateCurrentCircleStatus();
+    }
+
+    createNewCircleButton.addEventListener("click", () => {
+      startNewCircle();
+    });
+
+    accountNameInput.addEventListener("input", () => {
+      const value = accountNameInput.value.trim();
+      circleTitle.textContent = value || "Untitled account";
+    });
+
+    exportButton.addEventListener("click", () => {
+      exportButton.disabled = true;
+      exportButton.textContent = "Exporting…";
+
+      html2canvas(captureArea, {
+        backgroundColor: "#ffffff",
+        scale: 3,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement("a");
+        const accountName = accountNameInput.value.trim() || "green-circle";
+        link.download = accountName.replace(/\s+/g, "_") + ".png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }).catch(err => {
+        console.error("Export failed", err);
+        alert("Something went wrong during export.");
+      }).finally(() => {
+        exportButton.disabled = false;
+        exportButton.textContent = "Export circle as PNG";
+      });
+    });
+
+    /* ---------- Save & dashboard logic ---------- */
+    saveButton.addEventListener("click", () => {
+      const name = accountNameInput.value.trim();
+      const platform = platformInput.value.trim();
+      const handle = handleInput.value.trim();
+      const notes = notesInput.value.trim();
+      const nowIso = new Date().toISOString();
+
+      if (!Array.isArray(segmentStates) || !segmentStates.length) {
+        alert("Circle is not initialized yet.");
+        return;
+      }
+
+      if (!currentCircleId) {
+        const newId = "circle_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+        const newItem = {
+          id: newId,
+          name: name || "Untitled account",
+          platform,
+          handle,
+          notes,
+          segmentStates: segmentStates.slice(),
+          createdAt: nowIso,
+          updatedAt: nowIso
+        };
+        assessments.push(newItem);
+        currentCircleId = newId;
+      } else {
+        const existing = assessments.find(a => a.id === currentCircleId);
+        if (existing) {
+          existing.name = name || "Untitled account";
+          existing.platform = platform;
+          existing.handle = handle;
+          existing.notes = notes;
+          existing.segmentStates = segmentStates.slice();
+          existing.updatedAt = nowIso;
+        } else {
+          const newItem = {
+            id: currentCircleId,
+            name: name || "Untitled account",
+            platform,
+            handle,
+            notes,
+            segmentStates: segmentStates.slice(),
+            createdAt: nowIso,
+            updatedAt: nowIso
+          };
+          assessments.push(newItem);
+        }
+      }
+
+      saveAssessmentsToStorage();
+      updateCurrentCircleStatus();
+      renderDashboard();
+      showToast("Circle saved");
+    });
+
+    function clearPreview() {
+      if (!previewSvg || !dashboardPreviewEmpty || !dashboardPreviewTitle) return;
+      dashboardPreviewEmpty.style.visibility = "visible";
+      dashboardPreviewTitle.textContent = "";
+      while (previewSvg.firstChild) {
+        previewSvg.removeChild(previewSvg.firstChild);
+      }
+    }
+
+    function renderDashboard() {
+      if (!dashboardListEl) return;
+      if (!assessments.length) {
+        dashboardListEl.innerHTML =
+          '<p class="note-text" style="margin-top:8px;">No circles saved yet. Use “Create circle” to build one, then click Save.</p>';
+        clearPreview();
+        return;
+      }
+
+      const sorted = assessments.slice().sort((a, b) => {
+        const da = new Date(a.updatedAt || a.createdAt || 0).getTime();
+        const db = new Date(b.updatedAt || b.createdAt || 0).getTime();
+        return db - da;
+      });
+
+      dashboardListEl.innerHTML = sorted
+        .map(item => {
+          const platform = item.platform || "";
+          const handle = item.handle || "";
+          const metaParts = [];
+          if (platform) metaParts.push(platform);
+          if (handle) metaParts.push(handle);
+          const meta = metaParts.join(" · ");
+          const when = item.updatedAt || item.createdAt;
+          const safeNotes = (item.notes || "").replace(/\s+/g, " ");
+
+          const isConfirming = pendingDeleteId === item.id;
+
+          let actionsHtml = "";
+
+          if (isConfirming) {
+            actionsHtml = `
+              <div style="font-size:11px;color:#b91c1c;margin-bottom:4px;text-align:right;">
+                Are you sure you want to delete?
+              </div>
+              <button class="btn-ghost btn-sm" data-cancel-delete="${item.id}">Cancel</button>
+              <button class="btn-secondary btn-sm" data-confirm-delete="${item.id}" style="background:#fee2e2;color:#b91c1c;border-color:#fecaca;">
+                Confirm delete
+              </button>
+            `;
+          } else {
+            actionsHtml = `
+              <button class="btn-secondary btn-sm" data-open-id="${item.id}">Open</button>
+              <button class="btn-ghost btn-sm" data-delete-id="${item.id}">Delete</button>
+            `;
+          }
+
+          return `
+            <div class="dashboard-item" data-hover-id="${item.id}">
+              <div class="dashboard-left">
+                <div class="dashboard-title">${item.name || "Untitled account"}</div>
+                <div class="dashboard-meta-line">
+                  ${meta || "No platform/handle provided"}
+                </div>
+                <div class="dashboard-meta-line">
+                  Last saved: ${formatDate(when) || "N/A"}
+                </div>
+                ${
+                  safeNotes
+                    ? `<div class="dashboard-notes">${safeNotes}</div>`
+                    : ""
+                }
+              </div>
+              <div class="dashboard-actions">
+                ${actionsHtml}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      clearPreview();
+      if (pendingDeleteId && !assessments.find(a => a.id === pendingDeleteId)) {
+        pendingDeleteId = null;
+      }
+    }
+
+    dashboardListEl.addEventListener("click", (e) => {
+      const openBtn = e.target.closest("[data-open-id]");
+      if (openBtn) {
+        const id = openBtn.getAttribute("data-open-id");
+        openAssessment(id);
+        return;
+      }
+      const deleteBtn = e.target.closest("[data-delete-id]");
+      if (deleteBtn) {
+        const id = deleteBtn.getAttribute("data-delete-id");
+        pendingDeleteId = id;
+        renderDashboard();
+        return;
+      }
+      const cancelBtn = e.target.closest("[data-cancel-delete]");
+      if (cancelBtn) {
+        pendingDeleteId = null;
+        renderDashboard();
+        return;
+      }
+      const confirmBtn = e.target.closest("[data-confirm-delete]");
+      if (confirmBtn) {
+        const id = confirmBtn.getAttribute("data-confirm-delete");
+        assessments = assessments.filter(a => a.id !== id);
+        if (currentCircleId === id) {
+          currentCircleId = null;
+          startNewCircle();
+        }
+        pendingDeleteId = null;
+        saveAssessmentsToStorage();
+        renderDashboard();
+        return;
+      }
+    });
+
+    // Hover preview – solid colors, thicker ring
+    dashboardListEl.addEventListener("mouseover", (e) => {
+      const itemEl = e.target.closest("[data-hover-id]");
+      if (!itemEl) return;
+      const id = itemEl.getAttribute("data-hover-id");
+      const item = assessments.find(a => a.id === id);
+      if (!item) return;
+
+      document.querySelectorAll(".dashboard-item-hovered").forEach(el =>
+        el.classList.remove("dashboard-item-hovered")
+      );
+      itemEl.classList.add("dashboard-item-hovered");
+
+      dashboardPreviewEmpty.style.visibility = "hidden";
+      dashboardPreviewTitle.textContent = item.name || "Untitled account";
+
+      createDonutCircle(previewSvg, item.segmentStates, {
+        size: 260,
+        outerRadius: 110,
+        innerRadius: 40, // thicker donut
+        fontSize: 11
+      });
+    });
+
+    dashboardListEl.addEventListener("mouseleave", () => {
+      clearPreview();
+      document.querySelectorAll(".dashboard-item-hovered").forEach(el =>
+        el.classList.remove("dashboard-item-hovered")
+      );
+    });
+
+    function openAssessment(id) {
+      const item = assessments.find(a => a.id === id);
+      if (!item) return;
+
+      currentCircleId = id;
+      accountNameInput.value = item.name || "";
+      platformInput.value = item.platform || "";
+      handleInput.value = item.handle || "";
+      notesInput.value = item.notes || "";
+      circleTitle.textContent = item.name || "Untitled account";
+
+      createDonutCircle(mainCircleSvg, item.segmentStates);
+      updateCurrentCircleStatus();
+      setView("create");
+    }
+
+    /* ---------- Init ---------- */
+    loadAssessmentsFromStorage();
+    createDonutCircle(mainCircleSvg);
+    updateCurrentCircleStatus();
+  </script>
+</body>
+</html>
