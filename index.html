@@ -1244,8 +1244,22 @@
         }
       }
 
+       import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+async function saveCircleToFirestore(circleData) {
+  try {
+    await addDoc(collection(db, "assessments"), {
+      ...circleData,
+      createdAt: serverTimestamp()
+    });
+    console.log("Saved to Firestore");
+  } catch (e) {
+    console.error("Error saving to Firestore:", e);
+  }
+}
+
+      await saveAssessmentToFirebase(assessments[assessments.length - 1]);
       saveAssessmentsToStorage();
-      saveAssessmentToFirebase(assessments[assessments.length - 1]);
       updateCurrentCircleStatus();
       renderDashboard();
       showToast("Circle saved");
