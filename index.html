@@ -933,12 +933,60 @@
 
     async function syncAssessmentsFromFirebase() {
       if (!window.firebaseApi || typeof window.firebaseApi.getAllAssessments !== "function") return;
+
       try {
         const remote = await window.firebaseApi.getAllAssessments();
-        if (Array.isArray(remote)) {
-          assessments = remote;
-          saveAssessmentsToStorage();
+        if (!Array.isArray(remote)) return;
+
+        // Merge remote (shared) + local (this browser) by id.
+        const local = Array.isArray(assessments) ? assessments : [];
+        const map = new Map();
+
+        const asTime = (x) => {
+          const t = new Date(x || "").getTime();
+          return Number.isFinite(t) ? t : 0;
+        };
+
+        // Start with remote as the base (so you always see everyone’s circles)
+        remote.forEach((a) => {
+          if (a && a.id) map.set(String(a.id), a);
+        });
+
+        // Bring in local-only circles, and prefer whichever version is newer
+        const toUpsert = [];
+        local.forEach((a) => {
+          if (!a || !a.id) return;
+          const id = String(a.id);
+          const existing = map.get(id);
+
+          if (!existing) {
+            map.set(id, a);
+            toUpsert.push(a); // local-only: push up to Firebase so others can see it
+            return;
+          }
+
+          const localTime = Math.max(asTime(a.updatedAt), asTime(a.createdAt));
+          const remoteTime = Math.max(asTime(existing.updatedAt), asTime(existing.createdAt));
+
+          if (localTime >= remoteTime) {
+            map.set(id, a);
+            toUpsert.push(a); // local is newer: update Firebase
+          }
+        });
+
+        // Best-effort sync of any local changes to Firebase (does not block UI)
+        if (typeof window.firebaseApi.upsertAssessment === "function") {
+          toUpsert.forEach((a) => window.firebaseApi.upsertAssessment(a).catch(() => {}));
         }
+
+        // Update the app list
+        assessments = Array.from(map.values()).sort((a, b) => {
+          const at = Math.max(asTime(a.updatedAt), asTime(a.createdAt));
+          const bt = Math.max(asTime(b.updatedAt), asTime(b.createdAt));
+          return bt - at;
+        });
+
+        saveAssessmentsToStorage();
       } catch (err) {
         console.error("Failed to sync from Firestore:", err);
       }
@@ -1436,7 +1484,14 @@
     }
 
     /* ---------- Init ---------- */
-    loadAssessmentsFromStorage();
+    // If Firebase finishes initializing after the user logs in, refresh from Firestore.
+    window.addEventListener("firebase-ready", () => {
+      if (loggedIn) {
+        syncAssessmentsFromFirebase().then(() => renderDashboard());
+      }
+    });
+
+loadAssessmentsFromStorage();
     createDonutCircle(mainCircleSvg);
     updateCurrentCircleStatus();
   </script>
@@ -1450,6 +1505,8 @@
     doc,
     setDoc,
     deleteDoc,
+    query,
+    orderBy,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -1476,9 +1533,31 @@
     },
 
     async getAllAssessments() {
-      const snap = await getDocs(collection(db, "assessments"));
+      const q = query(collection(db, "assessments"), orderBy("updatedAt", "desc"));
+      const snap = await getDocs(q);
       const items = [];
-      snap.forEach((d) => items.push(d.data()));
+      snap.forEach((d) => {
+        const data = d.data() || {};
+        let segmentStates = data.segmentStates;
+
+        // Normalize segmentStates into a real array
+        if (segmentStates && typeof segmentStates === "object" && !Array.isArray(segmentStates)) {
+          segmentStates = Object.keys(segmentStates)
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => segmentStates[k]);
+        }
+
+        items.push({
+          id: data.id || d.id,
+          name: data.name || "Untitled account",
+          platform: data.platform || "",
+          handle: data.handle || "",
+          notes: data.notes || "",
+          segmentStates: Array.isArray(segmentStates) ? segmentStates : [0, 0, 0, 0, 0],
+          createdAt: data.createdAt || "",
+          updatedAt: data.updatedAt || data.createdAt || ""
+        });
+      });
       return items;
     },
 
@@ -1489,6 +1568,8 @@
   };
 
   // (Optional) Keep db accessible for debugging.
+    window.dispatchEvent(new Event("firebase-ready"));
+
   window.db = db;
 </script>
 
