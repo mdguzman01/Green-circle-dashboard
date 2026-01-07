@@ -930,6 +930,13 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(assessments));
     }
 
+    async function saveAssessmentToFirebase(assessment) {
+  await addDoc(collection(db, "assessments"), {
+    ...assessment,
+    createdAt: Date.now()
+  });
+}
+
     function formatDate(iso) {
       const d = new Date(iso);
       if (isNaN(d.getTime())) return "";
@@ -1238,6 +1245,7 @@
       }
 
       saveAssessmentsToStorage();
+      saveAssessmentToFirebase(assessments[assessments.length - 1]);
       updateCurrentCircleStatus();
       renderDashboard();
       showToast("Circle saved");
@@ -1416,5 +1424,25 @@
     createDonutCircle(mainCircleSvg);
     updateCurrentCircleStatus();
   </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFmdiThwjEsftuIfVAbViv5YyIZHvXB-I",
+    authDomain: "green-circle-dashboard-81c34.firebaseapp.com",
+    projectId: "green-circle-dashboard-81c34",
+    storageBucket: "green-circle-dashboard-81c34.firebasestorage.app",
+    messagingSenderId: "997697648104",
+    appId: "1:997697648104:web:3c1bd23d44c0dd3e9aa05d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
+</script>
+
 </body>
 </html>
