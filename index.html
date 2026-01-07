@@ -806,7 +806,7 @@
       roleAdminChip.classList.remove("active");
     });
 
-    loginButton.addEventListener("click", () => {
+    loginButton.addEventListener("click", async () => {
       const value = loginPasswordInput.value.trim();
       const adminPassword = "admin123";
       const userPassword = "user123";
@@ -818,6 +818,7 @@
         loginError.textContent = "";
         updateRolePill();
         loadAssessmentsFromStorage();
+        await syncAssessmentsFromFirebase();
         renderDashboard();
         createDonutCircle(mainCircleSvg);
         updateCurrentCircleStatus();
@@ -930,12 +931,24 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(assessments));
     }
 
+    async function syncAssessmentsFromFirebase() {
+      if (!window.firebaseApi || typeof window.firebaseApi.getAllAssessments !== "function") return;
+      try {
+        const remote = await window.firebaseApi.getAllAssessments();
+        if (Array.isArray(remote)) {
+          assessments = remote;
+          saveAssessmentsToStorage();
+        }
+      } catch (err) {
+        console.error("Failed to sync from Firestore:", err);
+      }
+    }
+
     async function saveAssessmentToFirebase(assessment) {
-  await addDoc(collection(db, "assessments"), {
-    ...assessment,
-    createdAt: Date.now()
-  });
-}
+      // Firestore lives in the module script and is exposed via window.firebaseApi
+      if (!window.firebaseApi || typeof window.firebaseApi.upsertAssessment !== "function") return;
+      return window.firebaseApi.upsertAssessment(assessment);
+    }
 
     function formatDate(iso) {
       const d = new Date(iso);
@@ -1194,7 +1207,7 @@
     });
 
     /* ---------- Save & dashboard logic ---------- */
-    saveButton.addEventListener("click", () => {
+    saveButton.addEventListener("click", async () => {
       const name = accountNameInput.value.trim();
       const platform = platformInput.value.trim();
       const handle = handleInput.value.trim();
@@ -1243,20 +1256,6 @@
           assessments.push(newItem);
         }
       }
-
-       import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-async function saveCircleToFirestore(circleData) {
-  try {
-    await addDoc(collection(db, "assessments"), {
-      ...circleData,
-      createdAt: serverTimestamp()
-    });
-    console.log("Saved to Firestore");
-  } catch (e) {
-    console.error("Error saving to Firestore:", e);
-  }
-}
 
       await saveAssessmentToFirebase(assessments[assessments.length - 1]);
       saveAssessmentsToStorage();
@@ -1351,7 +1350,7 @@ async function saveCircleToFirestore(circleData) {
       }
     }
 
-    dashboardListEl.addEventListener("click", (e) => {
+    dashboardListEl.addEventListener("click", async (e) => {
       const openBtn = e.target.closest("[data-open-id]");
       if (openBtn) {
         const id = openBtn.getAttribute("data-open-id");
@@ -1374,6 +1373,9 @@ async function saveCircleToFirestore(circleData) {
       const confirmBtn = e.target.closest("[data-confirm-delete]");
       if (confirmBtn) {
         const id = confirmBtn.getAttribute("data-confirm-delete");
+        if (window.firebaseApi && typeof window.firebaseApi.deleteAssessment === "function") {
+          try { await window.firebaseApi.deleteAssessment(id); } catch (err) { console.error("Firestore delete failed:", err); }
+        }
         assessments = assessments.filter(a => a.id !== id);
         if (currentCircleId === id) {
           currentCircleId = null;
@@ -1441,7 +1443,15 @@ async function saveCircleToFirestore(circleData) {
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    setDoc,
+    deleteDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDFmdiThwjEsftuIfVAbViv5YyIZHvXB-I",
@@ -1455,6 +1465,30 @@ async function saveCircleToFirestore(circleData) {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  // Expose a small Firestore API to the non-module script above.
+  window.firebaseApi = {
+    async upsertAssessment(assessment) {
+      if (!assessment || !assessment.id) throw new Error("Assessment must include an id");
+      const ref = doc(db, "assessments", String(assessment.id));
+      const payload = { ...assessment, syncedAt: serverTimestamp() };
+      await setDoc(ref, payload, { merge: true });
+      return assessment.id;
+    },
+
+    async getAllAssessments() {
+      const snap = await getDocs(collection(db, "assessments"));
+      const items = [];
+      snap.forEach((d) => items.push(d.data()));
+      return items;
+    },
+
+    async deleteAssessment(id) {
+      if (!id) return;
+      await deleteDoc(doc(db, "assessments", String(id)));
+    }
+  };
+
+  // (Optional) Keep db accessible for debugging.
   window.db = db;
 </script>
 
